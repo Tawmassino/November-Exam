@@ -1,0 +1,40 @@
+﻿1. NAME: Edamame |*| PRICE: €6.99
+2. NAME: Gyoza |*| PRICE: €8.99
+3. NAME: Miso Soup |*| PRICE: €4.99
+4. NAME: Tuna Tataki |*| PRICE: €12.99
+5. NAME: Tonkotsu Ramen |*| PRICE: €12.99
+6. NAME: Teriyaki Chicken Donburi |*| PRICE: €13.99
+7. NAME: Beef Yakisoba |*| PRICE: €14.99
+8. NAME: Margherita Pizza |*| PRICE: €10.99
+9. NAME: Pepperoni Pizza |*| PRICE: €12.99
+10. NAME: Vegetarian Pizza |*| PRICE: €11.99
+11. NAME: Hawaiian Pizza |*| PRICE: €13.99
+12. NAME: Tom Yum Soup |*| PRICE: €7.99
+13. NAME: Miso Ramen |*| PRICE: €11.99
+14. NAME: Soba Noodle Soup |*| PRICE: €9.99
+15. NAME: Vegetable Pho |*| PRICE: €10.99
+16. NAME: Tempura Vegetables |*| PRICE: €8.99
+17. NAME: Seaweed Salad |*| PRICE: €6.99
+18. NAME: Agedashi Tofu |*| PRICE: €7.99
+19. NAME: Sushi Nigiri |*| PRICE: €9.99
+20. NAME: Spicy Edamame |*| PRICE: €7.99
+21. NAME: Japanese Green Tea |*| PRICE: €2.99
+22. NAME: Soft Drinks |*| PRICE: €2.99
+23. NAME: Soda |*| PRICE: €1.99
+24. NAME: Juice |*| PRICE: €4.99
+25. NAME: Yakitori Skewers |*| PRICE: €8.99
+26. NAME: Kimchi |*| PRICE: €4.99
+27. NAME: Japanese Beers |*| PRICE: €5.99 - €7.99
+28. NAME: Lager Beer |*| PRICE: €4.99 - €6.99
+29. NAME: Red Wine |*| PRICE: €7.99 (Glass) - €29.99 (Bottle)
+30. NAME: White Wine |*| PRICE: €7.99 (Glass) - €29.99 (Bottle)
+31. NAME: Sake |*| PRICE: €9.99 (Small) - €19.99 (Large)
+32. NAME: Cepelinai (Potato Dumplings with Meat) |*| PRICE: €10.99
+33. NAME: Balandėliai (Stuffed Cabbage Rolls) |*| PRICE: €12.99
+34. NAME: Kugelis (Potato Pudding) |*| PRICE: €9.99
+35. NAME: Šaltibarščiai (Cold Beet Soup) |*| PRICE: €7.99
+36. NAME: Kepta Duona (Fried Bread with Garlic Sauce) |*| PRICE: €6.99
+37. NAME: Skilandis (Lithuanian Sausage) |*| PRICE: €11.99
+38. NAME: Bulviniai Blynai (Potato Pancakes) |*| PRICE: €10.99
+39. NAME: Jautienos Steikas (Beef Steak) |*| PRICE: €14.99
+40. NAME: Šakotis (Tree Cake) |*| PRICE: €16.99
