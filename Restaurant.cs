@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static November_Exam.Table;
 
 namespace November_Exam
 {
@@ -10,101 +12,158 @@ namespace November_Exam
     {
         //FIELDS
 
-        //PROPERTIES
-        
-        public int[] Tables { get; set; }
-        public bool IsTableTaken { get; set; }
+        // PROPERTIES
+        public List<Table> Tables { get; set; }
         public double TotalSum { get; set; }
 
-
-        //CONSTRUCTORS
-        public Restaurant(int[] tables, bool isTableTaken, double totalSum)
+        // CONSTRUCTORS
+        public Restaurant(List<Table> tables, double totalSum)
         {
-            Tables = tables;          
-
-            IsTableTaken = isTableTaken;
+            Tables = tables;
             TotalSum = totalSum;
         }
 
 
         // ======================  METHODS ====================  
-
-
-        public  void Order(int tableInput)
+        public static List<Table> InitializeTables()
         {
-            //select table
-            
-            //for (int i = 0; i < Tables.Length; i++)
-            //{            //    if (tableInput != Tables[i])
-            //    {            //        tableInput = Tables[i];
-            //        break;            //    }             //}
+            List<Table> tables = new List<Table>();
 
-            if (tableInput > 0 && tableInput <= Tables.Length && IsTableTaken == false)
+            foreach (ETable tableEnum in Enum.GetValues(typeof(ETable)))
             {
-                
-                IsTableTaken = true;
-                Console.WriteLine($"Table {tableInput} has been booked.");
+                tables.Add(new Table(tableEnum, false));
+            }
+
+            return tables;
+        }
+
+        public void SetTable()
+        {
+            Console.WriteLine("Enter the table number: ");
+            if (int.TryParse(Console.ReadLine(), out int tableNumber))
+            {
+                Table selectedTable = Tables.FirstOrDefault(table => (int)table.TableNumber == tableNumber);
+
+                if (selectedTable != null)
+                {
+                    Console.WriteLine("1. NOW or 2.RESERVE?");
+                    string choice = Console.ReadLine().ToLower();
+
+                    if (choice == "1" || choice == "now")
+                    {
+                        if (selectedTable.IsTableTaken == false)
+                        {
+                            selectedTable.IsTableTaken = true;
+                            Console.WriteLine("Table is now taken.");
+                        }
+                        else
+                        {
+                            throw new InvalidOperationException("The selected table is already taken.");
+                        }
+                    }
+                    else if (choice == "2" || choice == "reserve")
+                    {
+                        Console.WriteLine("Enter reservation time (e.g., 'HH:mm dd/MM/yyyy'): ");
+                        if (DateTime.TryParseExact(Console.ReadLine(), "HH:mm dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime reservationTime))
+                        {
+                            if (!selectedTable.IsTableTaken)
+                            {
+                                selectedTable.ReservationTime = reservationTime;
+                                Console.WriteLine("Table has been reserved.");
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException("The selected table is already taken.");
+                            }
+                        }
+                        else
+                        {
+                            throw new FormatException("Invalid reservation time format. Use 'HH:mm dd/MM/yyyy' (hour:minutes day/month/year).");
+                        }
+                    }
+                    else
+                    {
+                        throw new ArgumentException("Invalid choice. Enter '1' or 'now' to set the table for immediate action or '2' or 'reserve' to reserve it for the future.");
+                    }
+                }
+                else
+                {
+                    throw new ArgumentException("The selected table doesn't exist.");
+                }
+            }
+            else
+            {
+                throw new FormatException("Invalid input. Enter a valid number.");
+            }
+        }
+
+
+
+        public void Order(int tableInput)
+        {
+            // Select table
+            Table selectedTable = Tables.FirstOrDefault(table => (int)table.TableNumber == tableInput);
+
+            if (selectedTable != null && selectedTable.IsTableTaken)
+            {
+                // Make order
+                List<Item> order = new List<Item>();
+                selectedTable.TotalSum = 0;
+
+                while (true)
+                {
+                    Console.WriteLine("Enter an item to add, '+' to add an item, or '=' to end the order:");
+                    string waiterInput = Console.ReadLine();
+
+                    switch (waiterInput)
+                    {
+                        case "+":
+                            // Add the prices
+                            Console.WriteLine("Enter the name of the item to add:");
+                            string itemInputName = Console.ReadLine();
+                            Item itemToAdd = Item.GetItem(itemInputName);
+
+                            if (itemToAdd != null)
+                            {
+                                order.Add(itemToAdd);
+                                selectedTable.TotalSum += itemToAdd.Price;
+                                Console.WriteLine($"Added {itemToAdd.Name} to the order. Total: {selectedTable.TotalSum}");
+                            }
+                            break;
+
+                        case "=":
+                            // End order
+                            selectedTable.IsTableTaken = false;
+                            double totalSumToCheck = selectedTable.TotalSum;
+                            GenerateCheck(order, totalSumToCheck, selectedTable);
+                            return;
+
+                        default:
+                            // Order single item and add more items
+                            itemToAdd = Item.GetItem(waiterInput);
+
+                            if (itemToAdd != null)
+                            {
+                                order.Add(itemToAdd);
+                                selectedTable.TotalSum += itemToAdd.Price;
+                                Console.WriteLine($"Added {itemToAdd.Name} to the order. Total: {selectedTable.TotalSum}");
+                            }
+                            break;
+                    }
+                }
             }
             else
             {
                 Console.WriteLine($"Table {tableInput} is not available or invalid.");
             }
-
-
-            //make order
-            List<Item> order = new List<Item>();
-            TotalSum = 0;
-
-            while (true)
-            {
-                string waiterInput = Console.ReadLine();
-                switch (waiterInput)
-                {
-                    case "+":
-                        Console.WriteLine("Enter the name of the item to add:");
-                        string itemInputName = Console.ReadLine();
-                        Item itemToAdd = Item.GetItem(itemInputName);
-
-                        if (itemToAdd != null)
-                        {
-                            order.Add(itemToAdd);
-                            TotalSum += itemToAdd.Price;
-                            Console.WriteLine($"Added {itemToAdd.Name} to the order. Total: {TotalSum}");
-                        }
-                        break;
-                    case "=":
-                        IsTableTaken = false;
-                        double totalSumToCheck = TotalSum;
-                        GenerateCheck(order, totalSumToCheck);
-                        return;
-                    default:
-                        itemToAdd = Item.GetItem(waiterInput);
-
-                        if (itemToAdd != null)
-                        {
-                            order.Add(itemToAdd);
-                            TotalSum += itemToAdd.Price;
-                            Console.WriteLine($"Added {itemToAdd.Name} to the order. Total: {TotalSum}");
-                        }
-                        break;
-                }
-            }
-
-            //var x = product.Name;
-            //var y = product.Price;
-
-            //add the prices
-
-        }
-
-        public void UpdateOrder()
-        {
-
         }
 
 
 
-        public void GenerateCheck(List<Item> order,double totalSumToCheck)
+
+
+
+        public void GenerateCheck(List<Item> order,double totalSumToCheck, Table selectedTable)
         {
             DateTime now = DateTime.Now;
             string currentTime = now.ToString("HH:mm, d, MMMM yyyy");
@@ -115,10 +174,19 @@ namespace November_Exam
 
         public void CheckTableAvailability()
         {
-           
-
-
+            foreach (var table in Tables)
+            {
+                string tableStatus = table.IsTableTaken ? "Taken" : "Available";
+                Console.WriteLine($"Table {table.TableNumber}: {tableStatus}");
+            }
         }
+
+        //public void UpdateOrder()
+        //{
+
+        //}
+
+
         // ================== END OF METHODS ==================
 
     }
