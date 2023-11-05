@@ -27,6 +27,8 @@ namespace November_Exam
         //List<Item> menuList = ReadMenu().ToList();
         //itemSelected = menuList.SingleOrDefault(item => menuList.Contains == itemInputName);
 
+        
+
         public static Item GetItem(string itemInputName)
         {
             List<Item> menuList = ReadMenu();
@@ -59,10 +61,10 @@ namespace November_Exam
                         string[] parts = line.Split(new[] { "NAME: ", " |*| PRICE: €" }, StringSplitOptions.None);
                         if (parts.Length == 2)
                         {
-                            string itemName = parts[0];
+                            string itemName = parts[0];//get name
                             if (double.TryParse(parts[1], out double itemPrice))
                             {
-                                Item item = new Item(itemName, itemPrice);
+                                Item item = new Item(itemName, itemPrice);//get price
                                 menuFromFile.Add(item);
                             }
                         }

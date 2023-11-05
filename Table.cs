@@ -45,10 +45,6 @@ namespace November_Exam
         }
 
 
-
-
-
-
         //show current availability method - errors
         //        public void ShowCurrentAvailability()
         //        {

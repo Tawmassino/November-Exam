@@ -8,19 +8,20 @@ using static November_Exam.Table;
 
 namespace November_Exam
 {
-    public class Restaurant 
+    public class Restaurant : ICheck
     {
         //FIELDS
-
+        public string RestaurantName { get; set; }
         // PROPERTIES
         public List<Table> Tables { get; set; }
         public double TotalSum { get; set; }
 
         // CONSTRUCTORS
-        public Restaurant(List<Table> tables, double totalSum)
+        public Restaurant(List<Table> tables, double totalSum, string restaurantName)
         {
             Tables = tables;
             TotalSum = totalSum;
+            RestaurantName = restaurantName;
         }
 
 
@@ -136,6 +137,7 @@ namespace November_Exam
                             selectedTable.IsTableTaken = false;
                             double totalSumToCheck = selectedTable.TotalSum;
                             GenerateCheck(order, totalSumToCheck, selectedTable);
+                            selectedTable.TotalSum = 0;
                             return;
 
                         default:
@@ -158,27 +160,25 @@ namespace November_Exam
             }
         }
 
-
-
-
-
-
-        public void GenerateCheck(List<Item> order,double totalSumToCheck, Table selectedTable)
+        public void GenerateCheck(List<Item> order, double totalSumToCheck, Table selectedTable)
         {
             DateTime now = DateTime.Now;
             string currentTime = now.ToString("HH:mm, d, MMMM yyyy");
-            Console.WriteLine(currentTime);                     
-            order.ToList().ForEach(item => Console.WriteLine($"{item.Name} - {item.Price}"));
+            Console.WriteLine($"TABLE: {selectedTable.TableNumber}");// TABLE #
+            Console.WriteLine(currentTime);                     // CHECKOUT TIME
+            order.ToList().ForEach(item => Console.WriteLine($"{item.Name} - {item.Price}")); //ITEM LIST
             Console.WriteLine($"TOTAL: €{totalSumToCheck}");
         }
 
         public void CheckTableAvailability()
         {
+            Console.WriteLine("============= TABLE STATUS =============");
             foreach (var table in Tables)
             {
                 string tableStatus = table.IsTableTaken ? "Taken" : "Available";
                 Console.WriteLine($"Table {table.TableNumber}: {tableStatus}");
             }
+            Console.WriteLine("========================================");
         }
 
         //public void UpdateOrder()

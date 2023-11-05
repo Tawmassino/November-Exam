@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace November_Exam
 {
-    internal interface ICheck//susikurti kita klase kad implementuotu sita
+    internal interface ICheck
     {
-        void GenerateCheck();
+        void GenerateCheck(List<Item> order, double totalSumToCheck, Table selectedTable);
     }
 }
