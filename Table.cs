@@ -17,6 +17,7 @@ namespace November_Exam
         public bool IsTableTaken { get; set; }
         public DateTime ReservationTime { get; set; }
         public double TotalSum { get; set; }
+        public List<Item> Order { get; set; } //track the current order
 
         public enum ETable
         {
@@ -194,7 +195,7 @@ namespace November_Exam
         */
         #endregion
 
-       
+
 
 
         // ================== END OF METHODS ==================

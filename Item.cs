@@ -10,11 +10,14 @@ namespace November_Exam
     {
         public string Name { get; set; }
         public double Price { get; set; }
+        public int Quantity { get; set; }
 
-        public Item(string itemName, double itemPrice)
+        public Item(string itemName, double itemPrice, int quantity)
         {
             Name = itemName;
             Price = itemPrice;
+            Quantity = quantity;
+
         }
 
         public static Item GetItem(string itemInputName, MenuManager menuManager)
@@ -23,11 +26,11 @@ namespace November_Exam
 
             if (itemSelected != null)
             {
-                return new Item(itemSelected.Name, itemSelected.Price);
+                return new Item(itemSelected.Name, itemSelected.Price, itemSelected.Quantity);
             }
             else
             {
-                return new Item("Item not found", 0.0);
+                return new Item("Item not found", 0.0, 0);
             }
         }
 
@@ -40,7 +43,7 @@ namespace November_Exam
             }
             else
             {
-                return new Item("Item not found", 0.0);
+                return new Item("Item not found", 0.0, 0);
             }
         }
 

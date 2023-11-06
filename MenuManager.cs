@@ -34,7 +34,7 @@ namespace November_Exam
                                 string itemName = parts[0].Trim();
                                 if (double.TryParse(parts[1].Replace("€", "").Trim(), out double itemPrice))
                                 {
-                                    items.Add(new Item(itemName, itemPrice));
+                                    items.Add(new Item(itemName, itemPrice, 0));
                                 }
                             }
                         }
@@ -106,7 +106,7 @@ namespace November_Exam
                                 string itemName = parts[0].Trim();
                                 if (double.TryParse(parts[1].Replace("€", "").Trim(), out double itemPrice))
                                 {
-                                    items.Add(new Item(itemName, itemPrice));
+                                    items.Add(new Item(itemName, itemPrice, 0));
                                 }
                             }
                         }
