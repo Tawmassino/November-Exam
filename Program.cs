@@ -47,8 +47,7 @@ namespace November_Exam
             Console.WriteLine("1. SELECT TABLE");
             Console.WriteLine("2. FREE TABLE");
             Console.WriteLine("3. ORDER");
-            Console.WriteLine("4. UPDATE ORDER");
-            Console.WriteLine("5. VIEW ITEMS");
+            Console.WriteLine("4. VIEW ITEMS");
             string waiterMenuChoice = Console.ReadLine().ToLower();
 
             if (waiterMenuChoice != null)
@@ -56,38 +55,40 @@ namespace November_Exam
                 if (waiterMenuChoice == "1" || waiterMenuChoice == "table" || waiterMenuChoice == "select")
                 {
                     Console.Clear();
+                    Console.WriteLine("============ SELECT TABLE ==============");
+
                     myRestaurant.SetTable();
                     ReturnToMainMenu(myRestaurant, menuManager);
                 }
                 else if (waiterMenuChoice == "2" || waiterMenuChoice == "free" || waiterMenuChoice == "free table")
                 {
                     Console.Clear();
+                    Console.WriteLine("============= FREE TABLE ==============");
+
                     myRestaurant.UnsetTable();
                     ReturnToMainMenu(myRestaurant, menuManager);
                 }
                 else if (waiterMenuChoice == "3" || waiterMenuChoice == "order")
                 {
                     Console.Clear();
+                    Console.WriteLine("=============== ORDER =================");
+
                     myRestaurant.Order(menuManager);
                     ReturnToMainMenu(myRestaurant, menuManager);
                 }
-                else if (waiterMenuChoice == "4" || waiterMenuChoice == "update order" || waiterMenuChoice == "update")
-                {
-                    if (order != null)
-                    {
-                        Console.Clear();
-
-                        myRestaurant.UpdateOrder(menuManager, order);
-                        ReturnToMainMenu(myRestaurant, menuManager);
-                    }
-                }
-                else if (waiterMenuChoice == "5" || waiterMenuChoice == "view" || waiterMenuChoice == "items" || waiterMenuChoice == "view items")
+                else if (waiterMenuChoice == "4" || waiterMenuChoice == "view" || waiterMenuChoice == "items" || waiterMenuChoice == "view items")
                 {
                     Console.Clear();
+                    Console.WriteLine("============= VIEW ITEMS ==============");
+
                     menuManager.PrintMenuItemsToConsole();
                     ReturnToMainMenu(myRestaurant, menuManager);
                 }
-
+                else
+                {
+                    Console.WriteLine("Invalid choice. Please enter a valid option (1, 2, 3, or 4) or a valid keyword.");
+                    ReturnToMainMenu(myRestaurant, menuManager);
+                }
 
 
             }

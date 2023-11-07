@@ -46,24 +46,7 @@ namespace November_Exam
         }
 
 
-        //show current availability method - errors
-        //        public void ShowCurrentAvailability()
-        //        {
-        //            Console.WriteLine(@"
-        //╔════════════════════════════════════════════════════╗
-        //║              Current Table Availability            ║
-        //╚════════════════════════════════════════════════════╝");
 
-        //            foreach (var table in Tables)
-        //            {
-        //                string tableStatus = table.IsTableTaken ? "Taken" : "Available";
-        //                string tableLine = $"{table.TableNumber}: {tableStatus}";
-        //               int padding = 55 - tableLine.Length; // Adjust the padding here
-        //                Console.WriteLine($"{tableLine}{new string(' ', padding)}");
-        //            }
-
-        //            Console.WriteLine(@"══════════════════════════════════════════════════════");
-        //        }
 
 
 
@@ -191,6 +174,7 @@ namespace November_Exam
                 throw new ArgumentException("The selected table doesn't exist.");
             }
         }
+
 
         */
         #endregion

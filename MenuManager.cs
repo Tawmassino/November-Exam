@@ -8,8 +8,6 @@ namespace November_Exam
 {
     public class MenuManager
     {
-
-
         public List<Item> ReadMenuFromFile()
         {
             string filePath = "Menu.txt";
@@ -42,44 +40,57 @@ namespace November_Exam
                 }
                 else
                 {
-                    Console.WriteLine("The test file does not exist.");
+                    Console.WriteLine("The menu file does not exist.");
                 }
             }
             catch (Exception e)
             {
-                Console.WriteLine("Error reading test file: " + e.Message);
+                Console.WriteLine("Error reading menu file: " + e.Message);
             }
 
             return items;
         }
 
-        public void PrintMenuItemsToConsole()//  -------- TRY CATCH!! 
+        public void PrintMenuItemsToConsole()
         {
-            List<Item> items = ReadMenuFromFile();
-            if (items.Count > 0)
+            try
             {
-                Console.WriteLine("=============== ITEMS ==================");
-                int itemNumber = 1;
-                foreach (var item in items)
+                List<Item> items = ReadMenuFromFile();
+                if (items.Count > 0)
                 {
-                    Console.WriteLine($"{itemNumber}. {item.Name} - €{item.Price}");
-                    itemNumber++;
+                    Console.WriteLine("=============== ITEMS ==================");
+                    int itemNumber = 1;
+                    foreach (var item in items)
+                    {
+                        Console.WriteLine($"{itemNumber}. {item.Name} - €{item.Price}");
+                        itemNumber++;
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No items found in the menu file.");
                 }
             }
-            else
+            catch (Exception e)
             {
-                Console.WriteLine("No items found in the file.");
+                Console.WriteLine("Error printing menu items: " + e.Message);
             }
         }
 
-
-
-
         public Item GetItemByName(string itemName)
-        {//  -------- TRY CATCH!! 
-            List<Item> menu = ReadMenuFromFile();
-            return menu.SingleOrDefault(item => item.Name == itemName);
+        {
+            try
+            {
+                List<Item> menu = ReadMenuFromFile();
+                return menu.SingleOrDefault(item => item.Name == itemName);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error getting item by name: " + e.Message);
+                return null; // Handle the error gracefully, e.g., returning null in case of an error.
+            }
         }
+
         //-----------------------------------
         #region TestMethods
         public List<Item> ReadTestFile()

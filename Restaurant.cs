@@ -70,30 +70,53 @@ namespace November_Exam
                     }
                     else if (choice == "2" || choice == "reserve")
                     {
-                        Console.WriteLine("Enter reservation time (e.g., 'HH:mm dd/MM/yyyy'): ");
-                        if (DateTime.TryParseExact(Console.ReadLine(), "HH:mm dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime reservationTime))
+                        DateTime currentTime = DateTime.Now;
+
+                        if (!selectedTable.IsTableTaken)
                         {
-                            if (!selectedTable.IsTableTaken)
+                            bool hasNearbyReservation = selectedTable.ReservationTime != null && (selectedTable.ReservationTime - currentTime).TotalMinutes <= 10;
+
+                            if (!hasNearbyReservation)
                             {
-                                selectedTable.ReservationTime = reservationTime;
-                                Console.ForegroundColor = ConsoleColor.Green;
-                                Console.WriteLine("Table has been reserved.");
-                                Console.ResetColor();
+                                Console.WriteLine("Enter reservation time (e.g., 'HH:mm dd/MM/yyyy'): ");
+                                if (DateTime.TryParseExact(Console.ReadLine(), "HH:mm dd/MM/yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime reservationTime))
+                                {
+                                    if (currentTime < reservationTime)
+                                    {
+                                        selectedTable.ReservationTime = reservationTime;
+                                        Console.ForegroundColor = ConsoleColor.Green;
+                                        Console.WriteLine("Table has been reserved.");
+                                        Console.ResetColor();
+                                    }
+                                    else
+                                    {
+                                        Console.ForegroundColor = ConsoleColor.Red;
+                                        Console.WriteLine("You cannot reserve in the past or overlap with an earlier reservation.");
+                                        Console.ResetColor();
+                                    }
+                                }
+                                else
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Red;
+                                    Console.WriteLine("Invalid reservation time format. Use 'HH:mm dd/MM/yyyy' (hour:minutes day/month/year).");
+                                    Console.ResetColor();
+                                }
                             }
                             else
                             {
                                 Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine("The selected table is already taken.");
+                                Console.WriteLine("The selected table cannot be reserved as there is a reservation within the next 10 minutes.");
                                 Console.ResetColor();
                             }
                         }
                         else
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("Invalid reservation time format. Use 'HH:mm dd/MM/yyyy' (hour:minutes day/month/year).");
+                            Console.WriteLine("The selected table is already taken.");
                             Console.ResetColor();
                         }
                     }
+
                     else
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
@@ -156,237 +179,256 @@ namespace November_Exam
         }
 
 
-
+        // ------------ order methods ------------
         public void Order(MenuManager menuManager)
         {
-            // Select table
-            Console.WriteLine("Enter the table number: ");
-            if (int.TryParse(Console.ReadLine(), out int tableNumber))
+            int tableNumber = SelectTable();
+            if (tableNumber <= 0)// Invalid table number
             {
+                Console.WriteLine("Invalid table number. Please select a valid table.");
+                return;
+            }
 
-                Table selectedTable = Tables.FirstOrDefault(table => (int)table.TableNumber == tableNumber - 1);
+            Table selectedTable = Tables.FirstOrDefault(table => (int)table.TableNumber == tableNumber - 1);
+            if (selectedTable == null)// Invalid table
+            {
+                Console.WriteLine("Invalid table. Please select a valid table.");
+                return;
+            }
+
+            if (selectedTable.IsTableTaken == false)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("The selected table is not set as TAKEN. Please set the table before ordering.");
+                Console.ResetColor();
+                return;
+            }
 
 
-                if (selectedTable != null)//&& selectedTable.IsTableTaken
+            List<Item> order = selectedTable.Order;
+            selectedTable.TotalSum = 0;
+
+            while (true)
+            {
+                ShowOperationOptions();
+
+                string waiterInput = Console.ReadLine();
+
+                switch (waiterInput)
                 {
-                    // Make order
-                    List<Item> order = selectedTable.Order;
-                    selectedTable.TotalSum = 0;
+                    case "q":
+                        return;
 
-                    int itemNumber;
+                    case "+":
+                        AddItemToOrder(menuManager, order, selectedTable);
+                        break;
 
+                    case "=":
+                        EndOrder(order, selectedTable);
+                        return;
 
-                    while (true)
-                    {
-                        Console.WriteLine("Enter an item to add, '+' to add an item, or '=' to end the order:");
-                        string waiterInput = Console.ReadLine();
+                    case "-":
+                        RemoveItemFromOrder(order, selectedTable);
+                        break;
 
+                    case "...":
+                        Console.WriteLine($"==== {selectedTable.TableNumber} ===== ");
+                        Console.WriteLine("----------------------------------------");
+                        order.ToList().ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} -> {item.Price}"));
+                        break;
 
-
-                        switch (waiterInput)
-                        {
-                            case "+":
-                                // Add the prices
-                                Console.WriteLine("Enter the NAME or the NUMBER of the item to add:");
-                                Console.WriteLine("Type / to update the order");
-                                string itemInputName = Console.ReadLine();
-
-                                Console.WriteLine($"Enter the quantity of item {itemInputName}:");
-                                if (int.TryParse(Console.ReadLine(), out int quantity))
-                                {
-                                    // Parsing was successful, quantity is set
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Invalid quantity. Defaulting to 1.");
-                                    quantity = 1;
-                                }
-
-
-                                //Item itemToAdd = Item.GetItem(itemInputName, menuManager);
-                                Item itemToAdd = null;
-
-                                if (int.TryParse(itemInputName, out itemNumber))
-                                {
-                                    itemToAdd = Item.GetItemByPlace(itemNumber, menuManager);
-                                }
-                                else
-                                {
-                                    itemToAdd = Item.GetItem(itemInputName, menuManager);
-                                }
-
-                                itemToAdd.Quantity = quantity;//set the input quantity to the object
-
-                                if (itemToAdd != null)
-                                {
-                                    order.Add(itemToAdd);
-                                    selectedTable.TotalSum += itemToAdd.Price * quantity; // Update the total sum
-                                    Console.WriteLine($"Added {quantity} {itemToAdd.Name} to the order. Total: {selectedTable.TotalSum}");
-                                    Console.WriteLine("----------------------------------------");
-                                }
-                                break;
-
-                            case "=":
-                                // End order
-                                selectedTable.IsTableTaken = false; //chekout
-                                double totalSumToCheck = selectedTable.TotalSum;
-                                GenerateCheck(order, totalSumToCheck, selectedTable);
-                                selectedTable.TotalSum = 0;
-                                return;
-
-                            case "/":
-                                UpdateOrder(menuManager, order);
-                                break;
-
-                            default:
-                                // Order single item and add more items
-                                //itemToAdd = Item.GetItem(waiterInput, menuManager);
-                                if (selectedTable.IsTableTaken)
-                                {
-                                    // Handle single item order when the table is taken
-                                    itemToAdd = null;
-                                    if (int.TryParse(waiterInput, out itemNumber))
-                                    {
-                                        itemToAdd = Item.GetItemByPlace(itemNumber, menuManager);
-                                    }
-                                    else
-                                    {
-                                        itemToAdd = Item.GetItem(waiterInput, menuManager);
-                                    }
-                                    itemToAdd.Quantity = 1;
-
-                                    if (itemToAdd != null)
-                                    {
-                                        order.Add(itemToAdd);
-                                        selectedTable.TotalSum += itemToAdd.Price;
-                                        Console.WriteLine($"Added {itemToAdd.Quantity} {itemToAdd.Name} to the order. Total: {selectedTable.TotalSum}");
-                                    }
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Table is not taken. You can only add items if the table is taken.");
-                                }
-                                break;
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Table {tableNumber} is not available or invalid.");
+                    default:
+                        Console.WriteLine("Invalid input. Please try again.");
+                        break;
                 }
             }
         }
 
-        public void UpdateOrder(MenuManager menuManager, List<Item> order)
+        private int SelectTable()
         {
-            // Select table
             Console.WriteLine("Enter the table number: ");
             if (int.TryParse(Console.ReadLine(), out int tableNumber))
             {
-                Table selectedTable = Tables.FirstOrDefault(table => (int)table.TableNumber == tableNumber - 1);
-
-                if (selectedTable != null)//&& selectedTable.IsTableTaken
-                {
-                    // Update the order
-                    order = selectedTable.Order;
-                    int itemNumber;
-
-                    while (true)
-                    {
-                        order.ToList().ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} -> {item.Price}")); //ITEM LIST
-                        Console.WriteLine("========================================");
-                        Console.WriteLine("Enter an item to add, '+' to add an item, '-' to remove an item, or '=' to end the order:");
-                        string waiterInput = Console.ReadLine();
-
-                        switch (waiterInput)
-                        {
-                            case "+":
-                                // Add the prices
-                                Console.WriteLine("Enter the NAME or the NUMBER of the item to add:");
-                                string itemInputName = Console.ReadLine();
-                                Console.WriteLine($"Enter the name quantity of {itemInputName}:");
-                                if (int.TryParse(Console.ReadLine(), out int quantity))
-                                {
-                                    // Parsing was successful, quantity is set
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Invalid quantity. Defaulting to 1.");
-                                    quantity = 1;
-                                }
-
-                                Item itemToAdd = null;
-
-                                if (int.TryParse(itemInputName, out itemNumber))
-                                {
-                                    itemToAdd = Item.GetItemByPlace(itemNumber, menuManager);
-                                }
-                                else
-                                {
-                                    itemToAdd = Item.GetItem(itemInputName, menuManager);
-                                }
-
-                                itemToAdd.Quantity = quantity;
-
-                                if (itemToAdd != null)
-                                {
-                                    order.Add(itemToAdd);
-                                    selectedTable.TotalSum += itemToAdd.Price * quantity;
-                                    Console.WriteLine($"Added {quantity} {itemToAdd.Name} to the order. Total: {selectedTable.TotalSum}");
-                                    Console.WriteLine("----------------------------------------");
-                                }
-                                break;
-
-                            case "-":
-                                // Remove an item from the order
-                                Console.WriteLine("Enter the index of the item to remove:");
-                                if (int.TryParse(Console.ReadLine(), out int removeIndex) && removeIndex >= 0 && removeIndex < order.Count)
-                                {
-                                    Item removedItem = order[removeIndex];
-                                    order.RemoveAt(removeIndex);
-                                    selectedTable.TotalSum -= removedItem.Price * removedItem.Quantity;
-                                    Console.WriteLine($"Removed {removedItem.Quantity} {removedItem.Name} from the order. Total: {selectedTable.TotalSum}");
-                                    Console.WriteLine("----------------------------------------");
-                                    // Display the updated order
-                                    order.ToList().ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} -> {item.Price}"));
-                                    Console.WriteLine("----------------------------------------");
-                                }
-                                else
-                                {
-                                    Console.WriteLine("Invalid input. Please enter a valid item index.");
-                                }
-                                break;
-
-                            case "=":
-                                // End order
-                                selectedTable.IsTableTaken = false; //checkout
-                                double totalSumToCheck = selectedTable.TotalSum;
-                                GenerateCheck(order, totalSumToCheck, selectedTable);
-                                selectedTable.TotalSum = 0;
-                                return;
-                        }
-                    }
-                }
-                else
-                {
-                    Console.WriteLine($"Table {tableNumber} is not available or invalid.");
-                }
+                return tableNumber;
+            }
+            else
+            {
+                Console.WriteLine("Invalid table number.");
+                return -1;
             }
         }
 
+        private void AddItemToOrder(MenuManager menuManager, List<Item> order, Table selectedTable)
+        {
+            Console.WriteLine("Enter the NAME or the NUMBER of the item to add:");
+            string itemInputName = Console.ReadLine();
+            if (itemInputName != null)
+            {
+                Item itemToAdd = null;
+                int itemNumber;
+
+                if (int.TryParse(itemInputName, out itemNumber))
+                {
+                    itemToAdd = Item.GetItemByPlace(itemNumber, menuManager);
+                }
+                else
+                {
+                    itemToAdd = Item.GetItem(itemInputName, menuManager);
+                }
+
+                if (itemToAdd != null)
+                {
+                    Console.WriteLine($"Enter the quantity of {itemToAdd.Name}:");
+                    if (int.TryParse(Console.ReadLine(), out int quantity))
+                    {
+                        // Parsing was successful, and quantity is set
+                    }
+                    else
+                    {
+                        Console.WriteLine("Invalid quantity. Defaulting to 1.");
+                        quantity = 1;
+                    }
+
+                    itemToAdd.Quantity = quantity;
+                    Console.Clear();
+                    Console.WriteLine("----------------------------------------");
+                    order.Add(itemToAdd);
+                    selectedTable.TotalSum += itemToAdd.Price * quantity;
+                    Console.WriteLine($"Added {quantity} {itemToAdd.Name} to the order. Total: €{selectedTable.TotalSum.ToString("F2")}");
+                    Console.WriteLine("----------------------------------------");
+                    order.ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} - {item.Price}"));
+                    Console.WriteLine("----------------------------------------");
+                }
+            }
+            else
+            {
+                Console.WriteLine("invalid input");
+            }
+        }
+
+        private void EndOrder(List<Item> order, Table selectedTable)
+        {
+            selectedTable.IsTableTaken = false; // Checkout
+            double totalSumToCheck = selectedTable.TotalSum;
+            GenerateCheck(order, totalSumToCheck, selectedTable);
+            selectedTable.TotalSum = 0;
+        }
+
+        private void RemoveItemFromOrder(List<Item> order, Table selectedTable)
+        {
+            if (order.Count > 0)
+            {
+                Console.Clear();
+                Console.WriteLine("----------------------------------------");
+                order.ToList().ForEach(item => Console.WriteLine($"{order.IndexOf(item) + 1}.{item.Name} x {item.Quantity} -> €{item.Price}"));
+                Console.WriteLine("Enter the index of the item to remove:");
+
+                if (int.TryParse(Console.ReadLine(), out int removeIndex) && removeIndex > 0 && removeIndex <= order.Count)
+                {
+                    int humanIndex = removeIndex - 1; // start from 1, not 0
+                    if (humanIndex >= 0 && humanIndex < order.Count)
+                    {
+                        Item removedItem = order[humanIndex];
+                        order.RemoveAt(humanIndex);
+                        selectedTable.TotalSum -= removedItem.Price * removedItem.Quantity;
+                        Console.WriteLine($"Removed {removedItem.Quantity} {removedItem.Name} from the order. Total: {selectedTable.TotalSum}");
+                        Console.WriteLine("----------------------------------------");
+                        order.ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} -> €{item.Price}"));
+                        Console.WriteLine("----------------------------------------");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: Index out of range.");
+                    }
+                }
+
+                else
+                {
+                    Console.WriteLine("Invalid input. Please enter a valid item index.");
+                }
+            }
+            else
+            {
+                Console.WriteLine("The order is empty");
+            }
+        }
+        // ------------ end of order ------------
+
+        public void ShowOperationOptions()
+        {
+            Console.WriteLine("========================================================");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("+");
+            Console.ResetColor();
+
+            Console.Write(" ADD ITEM || ");
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("-");
+            Console.ResetColor();
+
+            Console.Write(" REMOVE ITEM || ");
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.Write("=");
+            Console.ResetColor();
+            Console.Write(" CHECKOUT || ");
+
+
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+            Console.Write(" q ");
+            Console.ResetColor();
+            Console.Write(" QUIT || ");
+            Console.ForegroundColor = ConsoleColor.Magenta;
+            Console.Write("...");
+            Console.ResetColor();
+            Console.WriteLine(" VIEW ORDER:");
+            Console.WriteLine("--------------------------------------------------------");
+        }
 
         public void GenerateCheck(List<Item> order, double totalSumToCheck, Table selectedTable)
         {
-            DateTime now = DateTime.Now;
-            string currentTime = now.ToString("HH:mm, d, MMMM yyyy");
-            Console.WriteLine($"TABLE: {selectedTable.TableNumber}");// TABLE #
-            Console.WriteLine(currentTime);                     // CHECKOUT TIME
-            Console.WriteLine("----------------------------------------");
-            order.ToList().ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} -> {item.Price}")); //ITEM LIST
-            Console.WriteLine("----------------------------------------");
-            Console.WriteLine($"TOTAL: €{totalSumToCheck}");
-        }
+            order.ToList().ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} -> €{item.Price}")); //ITEM LIST
 
+            Console.WriteLine("-------------- Checkout? ---------------");
+            AreYouSure();// y/n?
+
+            string checkoutChoice = Console.ReadLine().ToLower();
+
+            if (checkoutChoice != null)
+            {
+                if (checkoutChoice == "y" || checkoutChoice == "yes")
+                {
+                    Console.Clear();
+                    Console.WriteLine("----------------------------------------");
+                    DateTime now = DateTime.Now;
+                    string currentTime = now.ToString("HH:mm, d, MMMM yyyy");
+                    Console.WriteLine($"TABLE: {selectedTable.TableNumber}");// TABLE #
+                    Console.WriteLine(currentTime);                     // CHECKOUT TIME
+                    Console.WriteLine("----------------------------------------");
+                    order.ToList().ForEach(item => Console.WriteLine($"{order.IndexOf(item) + 1}.{item.Name} x {item.Quantity} -> €{item.Price.ToString("F2")}")); //ITEM LIST
+                    Console.WriteLine("----------------------------------------");
+                    Console.WriteLine($"TOTAL: €{totalSumToCheck.ToString("F2")}");
+                }
+                else if (checkoutChoice == "n" | checkoutChoice == "no")
+                {
+                    return;
+                }
+                else
+                {
+                    Console.WriteLine("invalid input");
+                    return;
+                }
+            }
+
+        }
+        public void AreYouSure()
+        {
+            Console.Write("-----------------"); Console.ForegroundColor = ConsoleColor.Green;
+            Console.Write("Y"); Console.ResetColor();
+            Console.Write("/"); Console.ForegroundColor = ConsoleColor.Red;
+            Console.Write("N"); Console.ResetColor();
+            Console.Write("-----------------");
+            Console.WriteLine();
+        }
         public void CheckTableAvailability()
         {
             Console.WriteLine("============= TABLE STATUS =============");
