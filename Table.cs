@@ -10,8 +10,6 @@ namespace November_Exam
 {
     public class Table
     {
-        //FIELDS
-
         // PROPERTIES
         public ETable TableNumber { get; set; }
         public bool IsTableTaken { get; set; }
@@ -44,10 +42,6 @@ namespace November_Exam
 
             return tables;
         }
-
-
-
-
 
 
         //show the reservation one month in advance method

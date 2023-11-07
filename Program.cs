@@ -7,7 +7,10 @@ namespace November_Exam
     {
         static void Main(string[] args)
         {
-            Console.OutputEncoding = System.Text.Encoding.UTF8; //to show euro sign
+            //nevadinti per daug generic - table/item - 
+            // !!!  paprasyti destytojo jog parodytu kaip galima metode susieti ReadLine su nauja klase ir padaryti ta metoda testuojama !!! 
+
+            Console.OutputEncoding = System.Text.Encoding.UTF8; // show euro sign
 
             //restaurant menu
             Restaurant myRestaurant = new Restaurant(Table.InitializeTables(), 0, "McCoding");

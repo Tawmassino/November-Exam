@@ -258,6 +258,8 @@ namespace November_Exam
             }
         }
 
+
+
         private void AddItemToOrder(MenuManager menuManager, List<Item> order, Table selectedTable)
         {
             Console.WriteLine("Enter the NAME or the NUMBER of the item to add:");
@@ -279,15 +281,22 @@ namespace November_Exam
                 if (itemToAdd != null)
                 {
                     Console.WriteLine($"Enter the quantity of {itemToAdd.Name}:");
-                    if (int.TryParse(Console.ReadLine(), out int quantity))
-                    {
-                        // Parsing was successful, and quantity is set
-                    }
-                    else
+                    //if (int.TryParse(Console.ReadLine(), out int quantity))
+                    //{
+                    //    // Parsing was successful, and quantity is set
+                    //}
+                    //else
+                    //{
+                    //    Console.WriteLine("Invalid quantity. Defaulting to 1.");
+                    //    quantity = 1;
+                    //}
+
+                    if (!int.TryParse(Console.ReadLine(), out int quantity))
                     {
                         Console.WriteLine("Invalid quantity. Defaulting to 1.");
                         quantity = 1;
                     }
+
 
                     itemToAdd.Quantity = quantity;
                     Console.Clear();
@@ -296,8 +305,13 @@ namespace November_Exam
                     selectedTable.TotalSum += itemToAdd.Price * quantity;
                     Console.WriteLine($"Added {quantity} {itemToAdd.Name} to the order. Total: €{selectedTable.TotalSum.ToString("F2")}");
                     Console.WriteLine("----------------------------------------");
-                    order.ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} - {item.Price}"));
+                    //order.ForEach(item => Console.WriteLine($"{item.Name} x {item.Quantity} - {item.Price}")); // labai letas metodas
+
+                    Console.WriteLine(string.Join("\n", order.Select(o => $"{o.Name} x {o.Quantity} - {o.Price}"))); //sita naudoti vietoj forach listo - labiau isvedimui
+
                     Console.WriteLine("----------------------------------------");
+
+
                 }
             }
             else
@@ -434,7 +448,7 @@ namespace November_Exam
             Console.WriteLine("============= TABLE STATUS =============");
             foreach (var table in Tables)
             {
-                string tableStatus = table.IsTableTaken ? "Taken" : "Available";
+                string tableStatus = table.IsTableTaken ? "Taken" : "Available"; //ternary operator
 
                 Console.Write($"{table.TableNumber} : ");
                 ColorizeAndPrintTableStatus(tableStatus);

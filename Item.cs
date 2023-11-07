@@ -8,7 +8,7 @@ namespace November_Exam
 {
     public class Item
     {
-        public string Name { get; set; }
+        public string Name { get; set; } // tipo galima keisti kitur, bet taip nereiketu daryt - init/private
         public double Price { get; set; }
         public int Quantity { get; set; }
 
